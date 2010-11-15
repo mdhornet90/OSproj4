@@ -1,3 +1,4 @@
+/* CSC 1600 programming assignment 4, coded by Chris Murphy */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +11,7 @@ struct memory
 
 int main(void)
 {
+    int search ( struct memory tempMem[], const int size, char *PID );
     void removeProc( struct memory *temp, int *age );
     void insertProcess( struct memory *temp, int size, int startPos, char *PID, int *age);
     void printMem( struct memory temp[], int newestAge );
@@ -26,7 +28,7 @@ int main(void)
 
         if ( !strcasecmp( fileName, "done" ) )
         {
-            printf("\nGoodbye\n");
+            printf("\nDon't gooooooo...\n");
             return 0;
         }
         for ( i = 0; i < 8; i++ )
@@ -53,6 +55,9 @@ int main(void)
             {
                 if ( fscanf(filePtr, "%s %i", PID, &size) == EOF ) //If it hits the end of file, it's done reading it
                 {
+                    printf("\n*******************************");
+                    printf("\n* Generating memory report... *");
+                    printf("\n*******************************\n");
                     printMem(entries, newestProcess);
                     break;
                 }
@@ -85,7 +90,7 @@ int main(void)
 
 int search ( struct memory tempMem[], const int size, char *PID ) //First sweeps memory for whether there's enough free space at all
 {                                                                 //If so, checks for enough continuous free space. If either condition isn't met,
-    int i, freeCount = 0, start;                                   //returns a 0. Otherwise, returns starting address of where it'll fit
+    int i, freeCount = 0, start;                                  //returns a 0. Otherwise, returns starting address of where it'll fit
 
     for ( i = 0; i < 64; i++ )
         if ( !strcasecmp( tempMem[i].PID, "free" ))
@@ -149,20 +154,23 @@ void printMem( struct memory temp[], int newestAge )
 {
     int i, age, startPos = 0;
     char PID[5];
-    
+
     for ( age = -1; age < newestAge; age++ )
         for ( i = 0; i < 64; i++ )
         {
             if ( temp[i].age == age )
             {
+                startPos = i;
                 strcpy( PID, temp[i].PID );
-                printf("%s: %i - ", PID, startPos);
+                printf("       %4s: %2i - ", PID, startPos);
                 while ( !strcasecmp( PID, temp[i].PID ) )
                 {
-                    i++;    
+                    i++;
                     startPos++;
                 }
-                printf("%i\n", startPos - 1);
+                printf("%2i\n", startPos - 1);
             }
         }
+
+    printf("\n...Done\n");
 }
