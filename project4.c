@@ -5,23 +5,24 @@
 struct memory
 {
     int age;
-    char *PID;
+    char PID[5];
 };
 
 int main(void)
 {
-    void removeProc( struct memory temp[], int age );
-    void insertProcess( struct memory temp[], int size, int startPos, char *PID, int age);
+    void removeProc( struct memory *temp, int *age );
+    void insertProcess( struct memory *temp, int size, int startPos, char *PID, int *age);
     int i, size, result, oldestProcess, newestProcess;
-    char fileName[20], *PID;
-    struct memory entries[64];
+    char fileName[20], PID[4];
+    struct memory entries[64], *memPtr;
     FILE *filePtr;
+    memPtr = entries;
 
     while(1)
     {
         printf("\nEnter the file to be read in (or type 'done' to exit): ");
         scanf("%s", &fileName);
-        
+
         if ( !strcasecmp( fileName, "done" ) )
         {
             printf("\nGoodbye\n");
@@ -29,12 +30,12 @@ int main(void)
         }
         for ( i = 0; i < 8; i++ )
         {
-            entries[i].PID = "OS";
+            strcpy(memPtr[i].PID, "OS");
             entries[i].age = -1;
         }
         for ( i = 8; i < 64; i++ )
         {
-            entries[i].PID = "free";
+            strcpy(memPtr[i].PID,"free");
             entries[i].age = 0;
         }
         filePtr = fopen(fileName, "r");
@@ -50,12 +51,15 @@ int main(void)
             else
             {
                 if ( fscanf(filePtr, "%s %i", PID, &size) == EOF ) //If it hits the end of file, it's done reading it
+                {
+                    printf("This should work\n");
                     break;
+                }
                 else
-                {   
+                {
                     for ( i = 0; i < 64; i++ ) //Otherwise it first scans for whether the process is in memory at all
                     {
-                        if ( !strcasecmp( entries[i].PID, PID ))
+                        if ( !strcasecmp( memPtr[i].PID, PID ))
                         {
                             printf("Process %s already in memory\n", PID);
                             break;
@@ -64,24 +68,24 @@ int main(void)
                     result = search( entries, size, PID);
                     while ( result == 0 )
                     {
-                        printf("Not enough space...removing oldest process\n");
-                        //removeProc(entries, oldestProcess);
-                        //result = search( entries, size, PID);
+                        printf("Not enough space...removing oldest process");
+                        removeProc(entries, &oldestProcess);
+                        result = search(memPtr, size, PID);
                     }
-                    printf("Placing process %s in memory...\n", PID);
-                    //insertProcess( entries, size, result, PID, newestProcess);
+                    printf("Placing process %s in memory...", PID);
+                    insertProcess( memPtr, size, result, PID, &newestProcess);
                 }
             }
         }
-    }  
-    
+    }
+
     return 0;
 }
 
 int search ( struct memory tempMem[], const int size, char *PID ) //First sweeps memory for whether there's enough free space at all
 {                                                                 //If so, checks for enough continuous free space. If either condition isn't met,
     int i, freeCount = 0, start;                                   //returns a 0. Otherwise, returns starting address of where it'll fit
-    
+
     for ( i = 0; i < 64; i++ )
         if ( !strcasecmp( tempMem[i].PID, "free" ))
             freeCount++;
@@ -104,35 +108,39 @@ int search ( struct memory tempMem[], const int size, char *PID ) //First sweeps
     }
 }
 
-void removeProc( struct memory temp[], int age )
+void removeProc( struct memory *temp, int *age )
 {
     int i, *ptrAge;
-    struct memory *tmp;
-    tmp = temp;
-    ptrAge = &age;
-    
+    struct memory *memPtr;
+    memPtr = temp;
+    ptrAge = age;
+    char dispPID[5];
+
     for ( i = 0; i < 64; i++ )
-        if ( &(tmp[i].age) == ptrAge )
+        if ( memPtr[i].age == *ptrAge )
         {
-            temp[i].age = 0;
-            temp[i].PID = "free";
+            strcpy(dispPID, memPtr[i].PID);
+            memPtr[i].age = 0;
+            strcpy(memPtr[i].PID, "free");
         }
-        
-    ptrAge++;
+    printf(" (%s)\n", dispPID);
+    (*ptrAge)++;
 }
 
-void insertProcess( struct memory temp[], int size, int startPos, char *PID, int age)
+void insertProcess( struct memory *temp, int size, int startPos, char *PID, int *age)
 {
     struct memory *memPtr;
     memPtr = temp;
     int i, *ptrAge;
-    ptrAge = &age;
-    
+    ptrAge = age;
+
     for ( i = startPos; i < startPos + size; i++ )
     {
-        memPtr[i].age = age;
-        temp[i].PID = PID;
+        memPtr[i].age = *ptrAge;
+        strcpy(temp[i].PID, PID);
     }
-    
-    ptrAge++;
+
+    printf("Success!\n");
+    (*ptrAge)++;
 }
+
