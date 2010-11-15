@@ -12,6 +12,7 @@ int main(void)
 {
     void removeProc( struct memory *temp, int *age );
     void insertProcess( struct memory *temp, int size, int startPos, char *PID, int *age);
+    void printMem( struct memory temp[], int newestAge );
     int i, size, result, oldestProcess, newestProcess;
     char fileName[20], PID[4];
     struct memory entries[64], *memPtr;
@@ -21,7 +22,7 @@ int main(void)
     while(1)
     {
         printf("\nEnter the file to be read in (or type 'done' to exit): ");
-        scanf("%s", &fileName);
+        scanf("%s19", &fileName);
 
         if ( !strcasecmp( fileName, "done" ) )
         {
@@ -52,7 +53,7 @@ int main(void)
             {
                 if ( fscanf(filePtr, "%s %i", PID, &size) == EOF ) //If it hits the end of file, it's done reading it
                 {
-                    printf("This should work\n");
+                    printMem(entries, newestProcess);
                     break;
                 }
                 else
@@ -144,3 +145,24 @@ void insertProcess( struct memory *temp, int size, int startPos, char *PID, int 
     (*ptrAge)++;
 }
 
+void printMem( struct memory temp[], int newestAge )
+{
+    int i, age, startPos = 0;
+    char PID[5];
+    
+    for ( age = -1; age < newestAge; age++ )
+        for ( i = 0; i < 64; i++ )
+        {
+            if ( temp[i].age == age )
+            {
+                strcpy( PID, temp[i].PID );
+                printf("%s: %i - ", PID, startPos);
+                while ( !strcasecmp( PID, temp[i].PID ) )
+                {
+                    i++;    
+                    startPos++;
+                }
+                printf("%i\n", startPos - 1);
+            }
+        }
+}
