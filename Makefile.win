@@ -1,7 +1,7 @@
 # Project: project4
 # Compiler: Default GCC compiler
 # Compiler Type: MingW 3
-# Makefile created by wxDev-C++ 7.3 on 15/11/10 01:33
+# Makefile created by wxDev-C++ 7.3 on 15/11/10 01:34
 
 WXLIBNAME = wxmsw28
 CPP       = g++.exe
